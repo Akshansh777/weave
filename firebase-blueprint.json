@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "Institution": {
+      "title": "Institution",
+      "description": "College or university pilot entity",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "emailDomain": { "type": "string", "maxLength": 100 },
+        "verified": { "type": "boolean" },
+        "plan": { "type": "string", "enum": ["pilot", "campus_standard", "enterprise"] }
+      },
+      "required": ["id", "name", "emailDomain", "verified", "plan"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Student, alumni, faculty, recruiter, or admin profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "institutionId": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["student", "alumni", "faculty", "recruiter", "admin"] },
+        "name": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 200 },
+        "skills": { "type": "array" },
+        "gradYear": { "type": "integer" },
+        "branch": { "type": "string", "maxLength": 150 },
+        "verifiedStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] }
+      },
+      "required": ["id", "institutionId", "role", "name", "email", "verifiedStatus"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Intent broadcast (Ask or Offer)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "authorId": { "type": "string", "maxLength": 128 },
+        "kind": { "type": "string", "enum": ["ask", "offer"] },
+        "title": { "type": "string", "maxLength": 300 },
+        "body": { "type": "string", "maxLength": 3000 },
+        "category": { "type": "string", "enum": ["mentorship", "referral", "internship", "research", "hiring", "advice"] },
+        "status": { "type": "string", "enum": ["open", "matched", "closed"] }
+      },
+      "required": ["id", "authorId", "kind", "title", "body", "category", "status"]
+    }
+  }
+}
