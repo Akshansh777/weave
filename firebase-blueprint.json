@@ -2,14 +2,16 @@
   "entities": {
     "Institution": {
       "title": "Institution",
-      "description": "College or university pilot entity",
+      "description": "College or university pilot entity (e.g. IIT Delhi)",
       "type": "object",
       "properties": {
         "id": { "type": "string", "maxLength": 128 },
         "name": { "type": "string", "maxLength": 200 },
         "emailDomain": { "type": "string", "maxLength": 100 },
         "verified": { "type": "boolean" },
-        "plan": { "type": "string", "enum": ["pilot", "campus_standard", "enterprise"] }
+        "plan": { "type": "string", "enum": ["pilot", "campus_standard", "enterprise"] },
+        "location": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "name", "emailDomain", "verified", "plan"]
     },
@@ -23,12 +25,23 @@
         "role": { "type": "string", "enum": ["student", "alumni", "faculty", "recruiter", "admin"] },
         "name": { "type": "string", "maxLength": 150 },
         "email": { "type": "string", "maxLength": 200 },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "headline": { "type": "string", "maxLength": 300 },
+        "bio": { "type": "string", "maxLength": 2000 },
         "skills": { "type": "array" },
+        "interests": { "type": "array" },
         "gradYear": { "type": "integer" },
         "branch": { "type": "string", "maxLength": 150 },
-        "verifiedStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] }
+        "currentCompany": { "type": "string", "maxLength": 150 },
+        "currentRole": { "type": "string", "maxLength": 150 },
+        "location": { "type": "string", "maxLength": 150 },
+        "verifiedStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] },
+        "consent": { "type": "object" },
+        "helpfulnessScore": { "type": "integer" },
+        "trustScore": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "institutionId", "role", "name", "email", "verifiedStatus"]
+      "required": ["id", "institutionId", "role", "name", "email", "verifiedStatus", "consent"]
     },
     "Post": {
       "title": "Post",
@@ -40,10 +53,107 @@
         "kind": { "type": "string", "enum": ["ask", "offer"] },
         "title": { "type": "string", "maxLength": 300 },
         "body": { "type": "string", "maxLength": 3000 },
+        "tags": { "type": "array" },
         "category": { "type": "string", "enum": ["mentorship", "referral", "internship", "research", "hiring", "advice"] },
-        "status": { "type": "string", "enum": ["open", "matched", "closed"] }
+        "status": { "type": "string", "enum": ["open", "matched", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "authorId", "kind", "title", "body", "category", "status"]
+    },
+    "Opportunity": {
+      "title": "Opportunity",
+      "description": "Job, internship, research fellowship or mentorship track",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "postedBy": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["job", "internship", "mentorship", "research"] },
+        "title": { "type": "string", "maxLength": 300 },
+        "company": { "type": "string", "maxLength": 200 },
+        "requiredSkills": { "type": "array" },
+        "location": { "type": "string", "maxLength": 150 },
+        "salaryOrStipend": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 4000 },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "deadline": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "postedBy", "type", "title", "company", "status"]
+    },
+    "IntroRequest": {
+      "title": "IntroRequest",
+      "description": "Warm introduction request between users",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "fromId": { "type": "string", "maxLength": 128 },
+        "toId": { "type": "string", "maxLength": 128 },
+        "viaId": { "type": "string", "maxLength": 128 },
+        "postId": { "type": "string", "maxLength": 128 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "context": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["sent", "accepted", "declined", "completed", "expired"] },
+        "outcome": { "type": "string", "enum": ["mentorship_started", "referral_given", "interview", "hired", "none"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "fromId", "toId", "message", "status"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable audit record for institutional moderation and accountability",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 100 },
+        "entity": { "type": "string", "maxLength": 100 },
+        "entityId": { "type": "string", "maxLength": 128 },
+        "metadata": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "actorId", "action", "entity", "entityId"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Registered campus administrator marker",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 200 },
+        "role": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/institutions/{institutionId}": {
+      "schema": "Institution",
+      "description": "Verified university campus records"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Member profiles and credentials"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Network Asks and Offers"
+    },
+    "/opportunities/{opportunityId}": {
+      "schema": "Opportunity",
+      "description": "Job and fellowship listings"
+    },
+    "/intros/{introId}": {
+      "schema": "IntroRequest",
+      "description": "Warm introductions"
+    },
+    "/audit/{auditId}": {
+      "schema": "AuditLog",
+      "description": "Institutional audit logs"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Admin identity markers"
     }
   }
 }
